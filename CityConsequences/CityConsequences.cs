@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using CitiesHarmony.API;
 using ColossalFramework;
 using ColossalFramework.Globalization;
@@ -40,7 +39,6 @@ namespace CityConsequences
             Toggle(g, "opt_tents", Settings.Tents);
             Toggle(g, "opt_comp", Settings.Compensation);
             Toggle(g, "opt_roads", Settings.Roads);
-            Toggle(g, "opt_collapse", Settings.Collapse);
             Toggle(g, "opt_walk", Settings.Walk);
             Toggle(g, "opt_payroll", Settings.Payroll);
             Toggle(g, "opt_ageing", Settings.Ageing);
@@ -72,7 +70,7 @@ namespace CityConsequences
     static class Settings
     {
         const string File = "CityConsequences";
-        public static SavedBool Rent, Homeless, Tents, Compensation, Roads, Collapse, Walk, Payroll, Ageing;
+        public static SavedBool Rent, Homeless, Tents, Compensation, Roads, Walk, Payroll, Ageing;
         public static SavedFloat CompensationScale, RoadScale, ControlStrength, SubsidyShare, TentCap, RecordWeeks;
         public static SavedString TentProp, WorshipAssets;
         public static SavedBool Faith;
@@ -90,7 +88,6 @@ namespace CityConsequences
             Tents = new SavedBool("tents", File, true, true);
             Compensation = new SavedBool("compensation", File, true, true);
             Roads = new SavedBool("roads", File, true, true);
-            Collapse = new SavedBool("collapse", File, true, true);
             Walk = new SavedBool("walk", File, true, true);
             Payroll = new SavedBool("payroll", File, true, true);
             Ageing = new SavedBool("ageing", File, true, true);
@@ -174,21 +171,20 @@ namespace CityConsequences
         static readonly Dictionary<string, string[]> Text = new Dictionary<string, string[]>
         {
             ["desc"] = new[] {
-                "Rent, eviction, homelessness, displacement, road upkeep, walkable growth, housing policies, structural collapse and places of worship.",
-                "Miete, Zwangsräumung, Obdachlosigkeit, Verdrängung, Straßenunterhalt, fußläufiges Wachstum, Wohnungspolitik, Einstürze und Gotteshäuser.",
-                "Alquiler, desahucios, personas sin hogar, desplazamiento, mantenimiento de carreteras, crecimiento caminable, políticas de vivienda, derrumbes y lugares de culto.",
-                "Loyers, expulsions, sans-abrisme, déplacements forcés, entretien des routes, croissance piétonne, politiques du logement, effondrements et lieux de culte.",
-                "월세, 쫓겨남, 노숙, 강제 철거, 도로 유지비, 걷기 좋은 동네, 주거 정책, 와르르 무너지는 다리, 그리고 예배 장소까지.",
-                "Czynsze, eksmisje, bezdomność, przesiedlenia, utrzymanie dróg, rozwój przyjazny pieszym, polityka mieszkaniowa, zawalenia i miejsca kultu.",
-                "Aluguel, despejos, pessoas em situação de rua, deslocamento, manutenção de vias, crescimento caminhável, políticas habitacionais, desabamentos e locais de culto.",
-                "Аренда, выселения, бездомность, вынужденное переселение, содержание дорог, пешеходная доступность, жилищная политика, обрушения и места поклонения.",
-                "租金、驱逐、无家可归、拆迁安置、道路维护、步行友好发展、住房政策、结构坍塌与礼拜场所。" },
+                "Rent, eviction, homelessness, displacement, road upkeep, walkable growth, housing policies, aging infrastructure and places of worship.",
+                "Miete, Zwangsräumung, Obdachlosigkeit, Verdrängung, Straßenunterhalt, fußläufiges Wachstum, Wohnungspolitik, alternde Infrastruktur und Gotteshäuser.",
+                "Alquiler, desahucios, personas sin hogar, desplazamiento, mantenimiento de carreteras, crecimiento caminable, políticas de vivienda, infraestructura envejecida y lugares de culto.",
+                "Loyers, expulsions, sans-abrisme, déplacements forcés, entretien des routes, croissance piétonne, politiques du logement, infrastructures vieillissantes et lieux de culte.",
+                "월세, 쫓겨남, 노숙, 강제 철거, 도로 유지비, 걷기 좋은 동네, 주거 정책, 낡아가는 인프라, 그리고 예배 장소까지.",
+                "Czynsze, eksmisje, bezdomność, przesiedlenia, utrzymanie dróg, rozwój przyjazny pieszym, polityka mieszkaniowa, starzejąca się infrastruktura i miejsca kultu.",
+                "Aluguel, despejos, pessoas em situação de rua, deslocamento, manutenção de vias, crescimento caminhável, políticas habitacionais, infraestrutura envelhecida e locais de culto.",
+                "Аренда, выселения, бездомность, вынужденное переселение, содержание дорог, пешеходная доступность, жилищная политика, стареющая инфраструктура и места поклонения.",
+                "租金、驱逐、无家可归、拆迁安置、道路维护、步行友好发展、住房政策、老化的基础设施与礼拜场所。" },
             ["opt_rent"] = new[] { "Rent and eviction", "Miete und Zwangsräumung", "Alquiler y desahucios", "Loyers et expulsions", "월세와 퇴거", "Czynsze i eksmisje", "Aluguel e despejos", "Аренда и выселения", "租金与驱逐" },
             ["opt_homeless"] = new[] { "Homelessness", "Obdachlosigkeit", "Personas sin hogar", "Sans-abrisme", "노숙", "Bezdomność", "Pessoas em situação de rua", "Бездомность", "无家可归" },
             ["opt_tents"] = new[] { "Tents for homeless households", "Zelte für obdachlose Haushalte", "Tiendas de campaña para hogares sin techo", "Tentes pour les foyers sans abri", "노숙 가구 텐트", "Namioty bezdomnych gospodarstw", "Barracas para famílias sem moradia", "Палатки бездомных семей", "无家可归家庭的帐篷" },
             ["opt_comp"] = new[] { "Compensation for demolished homes", "Entschädigung für abgerissene Wohnungen", "Indemnización por viviendas demolidas", "Indemnisation des logements démolis", "철거된 집 보상금", "Odszkodowania za wyburzone domy", "Indenização por moradias demolidas", "Компенсация за снесённое жильё", "拆除住房补偿" },
             ["opt_roads"] = new[] { "Higher road upkeep", "Höhere Straßenunterhaltskosten", "Mayor mantenimiento de carreteras", "Entretien des routes plus coûteux", "훨씬 비싸진 도로 유지비", "Wyższe koszty utrzymania dróg", "Manutenção de vias mais cara", "Повышенное содержание дорог", "更高的道路维护费" },
-            ["opt_collapse"] = new[] { "Disasters collapse bridges and tunnels", "Katastrophen lassen Brücken und Tunnel einstürzen", "Los desastres derrumban puentes y túneles", "Les catastrophes effondrent ponts et tunnels", "재난이 오면 다리와 터널이 무너짐", "Katastrofy niszczą mosty i tunele", "Desastres derrubam pontes e túneis", "Катастрофы обрушивают мосты и тоннели", "灾害会使桥梁和隧道坍塌" },
             ["opt_walk"] = new[] { "Walkability and transit limit upgrades", "Fußläufigkeit und ÖPNV begrenzen Aufwertungen", "La caminabilidad y el transporte limitan las mejoras", "La marchabilité et les transports limitent les améliorations", "걷기 좋고 대중교통이 편해야 건물이 업그레이드됨", "Dostępność pieszo i komunikacja ograniczają rozwój budynków", "Caminhabilidade e transporte limitam melhorias", "Пешая и транспортная доступность ограничивают улучшения", "步行与公交可达性限制建筑升级" },
             ["opt_payroll"] = new[] { "City service wages follow how rich the city is", "Löhne im öffentlichen Dienst folgen dem Wohlstand der Stadt", "Los sueldos de los servicios municipales siguen la riqueza de la ciudad", "Les salaires des services municipaux suivent la richesse de la ville", "도시가 부자일수록 공공서비스 인건비도 올라감", "Płace w usługach miejskich rosną wraz z zamożnością miasta", "Salários dos serviços municipais acompanham a riqueza da cidade", "Зарплаты в городских службах растут вместе с благосостоянием города", "城市越富裕，公共服务工资越高" },
             ["opt_ageing"] = new[] { "Aging infrastructure: old networks cost more to maintain", "Alternde Infrastruktur: alte Netze kosten mehr Unterhalt", "Infraestructura envejecida: las redes viejas cuestan más de mantener", "Infrastructures vieillissantes : les vieux réseaux coûtent plus cher à entretenir", "낡은 인프라: 오래된 도로·배관일수록 유지비 폭탄", "Starzejąca się infrastruktura: stare sieci drożej utrzymać", "Infraestrutura envelhecida: redes antigas custam mais para manter", "Стареющая инфраструктура: старые сети дороже в содержании", "基础设施老化：越旧的路网和管线维护越贵" },
@@ -286,6 +282,9 @@ namespace CityConsequences
             ["dbg_demand"] = new[] { " · wants {0}", " · fordert {0}", " · pide {0}", " · demande {0}", " · 요구: {0}", " · żąda: {0}", " · pede {0}", " · требует: {0}", " · 诉求：{0}" },
             ["dbg_doorstep"] = new[] { "Doorstep pressure: {0}% of the abandonment point · street homeless nearby: {1}", "Druck vor der Haustür: {0} % bis zur Aufgabe · Obdachlose auf der Straße in der Nähe: {1}", "Presión en la puerta: {0} % del punto de abandono · personas sin hogar en la calle cerca: {1}", "Pression devant la porte : {0} % du seuil d'abandon · sans-abri à la rue à proximité : {1}", "현관 앞 압박: 버려지기까지 {0}% · 근처 거리 노숙: {1}", "Presja pod drzwiami: {0}% progu opuszczenia · bezdomni na ulicy w pobliżu: {1}", "Pressão na porta: {0}% do ponto de abandono · pessoas em situação de rua por perto: {1}", "Давление у входа: {0}% до заброшенности · бездомных на улице рядом: {1}", "门口压力：距离废弃 {0}% · 附近露宿街头者：{1}" },
             ["notif_doorstep_title"] = new[] { "Homeless on the doorstep!", "Obdachlose vor der Tür!", "¡Personas sin hogar en la puerta!", "Des sans-abri devant la porte !", "문 앞에 노숙인이 있어요!", "Bezdomni pod drzwiami!", "Pessoas em situação de rua na porta!", "Бездомные у порога!", "门口有无家可归者！" },
+            ["notif_rent_title"] = new[] { "Can't afford rent!", "Miete nicht bezahlbar!", "¡No pueden pagar el alquiler!", "Loyer trop cher !", "월세 감당 불가!", "Nie stać ich na czynsz!", "Não dá pra pagar o aluguel!", "Не по карману аренда!", "交不起房租！" },
+            ["rent_alarm_minor"] = new[] { "Most households here can't make rent and have eviction notices", "Die meisten Haushalte hier können die Miete nicht zahlen und haben eine Räumungsankündigung", "La mayoría de los hogares de aquí no pueden pagar el alquiler y tienen aviso de desahucio", "La plupart des foyers ici ne peuvent pas payer le loyer et ont reçu un avis d'expulsion", "여기 사는 집 대부분이 월세를 못 내서 퇴거 통지 받았어", "Większość gospodarstw tutaj nie płaci czynszu i ma nakaz eksmisji", "A maioria das famílias daqui não consegue pagar o aluguel e recebeu aviso de despejo", "Большинство семей здесь не тянут аренду и получили уведомление о выселении", "这里大多数家庭付不起房租，已收到驱逐通知" },
+            ["rent_alarm_major"] = new[] { "Almost every household here is about to be evicted", "Fast allen Haushalten hier droht die Zwangsräumung", "Casi todos los hogares de aquí están a punto de ser desahuciados", "Presque tous les foyers ici sont sur le point d'être expulsés", "여기 거의 모든 집이 곧 쫓겨날 판이야", "Prawie wszystkim gospodarstwom tutaj grozi eksmisja", "Quase todas as famílias daqui estão prestes a ser despejadas", "Почти все семьи здесь вот-вот выселят", "这里几乎每户都即将被驱逐" },
             ["doorstep_minor"] = new[] { "Homeless camps nearby: people here are complaining", "Obdachlosenlager in der Nähe: Die Leute hier beschweren sich", "Campamentos de personas sin hogar cerca: la gente de aquí se queja", "Campements de sans-abri à proximité : les occupants se plaignent", "근처에 노숙 텐트촌: 여기 사람들 불만이 많음", "Obozowiska bezdomnych w pobliżu: ludzie tutaj się skarżą", "Acampamentos de pessoas em situação de rua por perto: o pessoal daqui está reclamando", "Рядом лагеря бездомных: здесь жалуются", "附近有无家可归者的营地：这里的人在抱怨" },
             ["doorstep_major"] = new[] { "Homeless camps nearby: the occupants are about to leave", "Obdachlosenlager in der Nähe: Die Nutzer stehen kurz vor dem Auszug", "Campamentos de personas sin hogar cerca: los ocupantes están a punto de irse", "Campements de sans-abri à proximité : les occupants sont sur le point de partir", "근처에 노숙 텐트촌: 곧 다들 떠날 기세", "Obozowiska bezdomnych w pobliżu: użytkownicy zaraz się wyprowadzą", "Acampamentos de pessoas em situação de rua por perto: os ocupantes estão prestes a sair", "Рядом лагеря бездомных: жильцы вот-вот съедут", "附近有无家可归者的营地：使用者即将搬走" },
             ["pol_criminal"] = new[] { "Criminalize Homelessness", "Obdachlosigkeit unter Strafe stellen", "Criminalizar la falta de vivienda", "Criminaliser le sans-abrisme", "노숙하면 잡아갑니다", "Penalizacja bezdomności", "Criminalizar a situação de rua", "Запрет бродяжничества", "露宿入罪" },
@@ -516,11 +515,6 @@ namespace CityConsequences
             {
                 new[] { "Hands off our homes! Join us outside city hall at noon. #protest #nodemolition", "Hände weg von unseren Wohnungen! Kommt mittags mit uns vors Rathaus. #protest #keinabriss", "¡Fuera las manos de nuestras casas! Únete a nosotros frente al ayuntamiento a mediodía. #protesta #noalademolición", "Touchez pas à nos logements ! Rejoignez-nous devant la mairie à midi. #manif #nonàladémolition", "우리 집에서 손 떼라! 정오에 시청 앞으로 모여 주세요. #시위 #철거반대", "Ręce precz od naszych domów! Dołącz do nas w południe przed ratuszem. #protest #niedlawyburzeń", "Tirem as mãos das nossas casas! Venha com a gente pra frente da prefeitura ao meio-dia. #protesto #nãoàdemolição", "Руки прочь от наших домов! Присоединяйтесь к нам в полдень у мэрии. #протест #нетсносу", "别碰我们的家！中午到市政厅门口和我们一起抗议。#抗议 #反对拆迁" },
                 new[] { "Bulldozers came for our block today. We're not going quietly.", "Heute kamen die Bulldozer in unseren Block. Wir gehen nicht kampflos.", "Hoy han venido las excavadoras a nuestra manzana. No nos vamos a ir en silencio.", "Les bulldozers sont venus pour notre pâté de maisons aujourd'hui. On ne partira pas sans rien dire.", "오늘 우리 동네에 불도저가 들이닥침. 그냥 조용히 나가진 않을 거임.", "Dziś po nasz kwartał przyjechały buldożery. Nie odejdziemy po cichu.", "As escavadeiras vieram atrás do nosso quarteirão hoje. Não vamos sair calados.", "Сегодня бульдозеры пришли за нашим кварталом. Мы не уйдём молча.", "推土机今天开进了我们这片街区。我们不会默默离开。" }
-            },
-            ["Collapsed"] = new[]
-            {
-                new[] { "The #bridge is just... gone. Thank goodness for the traffic jam that stopped me before it.", "Die #Brücke ist einfach... weg. Zum Glück stand ich vorher im Stau.", "El #puente simplemente... ya no está. Menos mal que el atasco me paró antes.", "Le #pont a juste... disparu. Heureusement que le bouchon m'a arrêté avant.", "#다리가 그냥... 사라짐. 그 앞에서 차가 막혀서 천만다행이었음.", "#Most po prostu... zniknął. Całe szczęście, że utknąłem w korku przed nim.", "A #ponte simplesmente... sumiu. Ainda bem que o engarrafamento me segurou antes.", "#Моста просто... нет. Хорошо, что пробка остановила меня до него.", "那座#桥就这么……没了。幸好前面堵车，我没开上去。" },
-                new[] { "Who signed off on that overpass? It folded like paper. #collapse #inspectnow", "Wer hat diese Überführung abgenommen? Die ist zusammengeklappt wie Papier. #einsturz #sofortprüfen", "¿Quién aprobó ese paso elevado? Se dobló como si fuera de papel. #derrumbe #inspecciónya", "Qui a validé ce viaduc ? Il s'est plié comme du papier. #effondrement #inspectionmaintenant", "저 고가도로 누가 승인한 거임? 종이처럼 접혀 버렸는데. #붕괴 #당장점검해", "Kto odebrał ten wiadukt? Złożył się jak papier. #katastrofa #kontrolateraz", "Quem aprovou esse viaduto? Dobrou igual papel. #desabamento #fiscalizajá", "Кто принимал эту эстакаду? Она сложилась, как бумага. #обрушение #проверьтесрочно", "那座高架是谁验收的？像纸一样折了。#坍塌 #马上检查" }
             },
             ["Unaffordable"] = new[]
             {
@@ -863,9 +857,9 @@ namespace CityConsequences
         const int ErrorLimit = 32;
         internal static volatile bool Active;
         internal static uint Frame;
-        static readonly string[] parts = { "Walkability", "Roads", "Collapse", "Housing", "Religion" };
-        static readonly int[] errors = new int[5];
-        static readonly bool[] off = new bool[5];
+        static readonly string[] parts = { "Walkability", "Roads", "Housing", "Religion" };
+        static readonly int[] errors = new int[4];
+        static readonly bool[] off = new bool[4];
 
         internal static void Start()
         {
@@ -873,6 +867,7 @@ namespace CityConsequences
             Array.Clear(off, 0, off.Length);
             Frame = Singleton<SimulationManager>.instance.m_currentFrameIndex;
             Safe("Roads.Start", Roads.Start);
+            Safe("Payroll.Reset", Payroll.Reset);
             Safe("Difficulty", Difficulty.Detect);
             Safe("Wear.Start", Wear.Start);
             Safe("Walk.Reset", Walk.Reset);
@@ -904,7 +899,6 @@ namespace CityConsequences
             Active = false;
             Housing.Clear();
             Records.Clear();
-            Collapse.Clear();
             Religion.Stop();
         }
 
@@ -914,9 +908,8 @@ namespace CityConsequences
             Frame = Singleton<SimulationManager>.instance.m_currentFrameIndex;
             if (!off[0]) try { Walk.Step(Frame); } catch (Exception e) { Fail(0, e); }
             if (!off[1]) try { Roads.Step(Frame); } catch (Exception e) { Fail(1, e); }
-            if (!off[2]) try { Collapse.Step(); } catch (Exception e) { Fail(2, e); }
-            if (!off[3]) try { Housing.Step(Frame); } catch (Exception e) { Fail(3, e); }
-            if (!off[4]) try { if (Religion.Enabled && Religion.C[0] != null) Religion.Step(); } catch (Exception e) { Fail(4, e); }
+            if (!off[2]) try { Housing.Step(Frame); } catch (Exception e) { Fail(2, e); }
+            if (!off[3]) try { if (Religion.Enabled && Religion.C[0] != null) Religion.Step(); } catch (Exception e) { Fail(3, e); }
         }
 
         internal static int Roll(uint max) => Singleton<SimulationManager>.instance.m_randomizer.Int32(max);
@@ -1200,8 +1193,12 @@ namespace CityConsequences
     static class Payroll
     {
         const float RefLand = 35f, Staff = 0.6f, RampStart = 20000f, RampEnd = 80000f, MinWealth = 0.5f, MaxWealth = 3f, MinIndex = 0.9f, MaxIndex = 2.2f;
-        static volatile float index = 1f;
+        const float WageFollow = 0.4f, WageMax = 1.4f, WageEase = 0.05f;
+        static volatile float index = 1f, pay = 1f;
         internal static float Index => index;
+        internal static float Pay => pay;
+
+        internal static void Reset() => pay = 1f;
 
         internal static void Update()
         {
@@ -1211,6 +1208,8 @@ namespace CityConsequences
             ramp = ramp * ramp * (3f - 2f * ramp);
             float wealth = Mathf.Clamp(dm.m_districts.m_buffer[0].GetLandValue() / RefLand * Housing.MarketFactor, MinWealth, MaxWealth);
             index = Mathf.Clamp(1f + Staff * (wealth - 1f) * ramp, MinIndex, MaxIndex);
+            float rent = Housing.AverageRent();
+            if (rent > 0f) pay += (Mathf.Clamp(1f + WageFollow * (rent / Housing.RefRent - 1f), 1f, WageMax) - pay) * WageEase;
         }
 
         internal static int Apply(int cost) => cost <= 0 || !Sim.Active || !Settings.Payroll.value ? cost : Mathf.CeilToInt(cost * index);
@@ -1218,7 +1217,7 @@ namespace CityConsequences
 
     static class Wear
     {
-        const float GameYear = 213722f, Grace = 15f, Life = 45f, CostMax = 0.75f, ChainBase = 0.35f, RateMin = 0.5f, RateMax = 2f;
+        const float GameYear = 213722f, Grace = 15f, Life = 45f, CostMax = 0.75f, RateMin = 0.5f, RateMax = 2f;
         const int Segments = 36864, Unit = 64, PassFrames = 256, Version = 1;
         static readonly uint[] wear = new uint[Segments], stamp = new uint[Segments];
         [ThreadStatic] internal static ushort Current;
@@ -1280,13 +1279,6 @@ namespace CityConsequences
             return Mathf.CeilToInt(cost * (1f + CostMax * Worn(seg)));
         }
 
-        internal static bool Chains(ushort seg)
-        {
-            if (!Settings.Ageing.value || !Fresh(seg)) return true;
-            float chance = ChainBase + (1f - ChainBase) * Worn(seg);
-            return Sim.Roll(1000) < (int)(chance * 1000f);
-        }
-
         internal static byte[] Save()
         {
             using (var ms = new System.IO.MemoryStream())
@@ -1325,108 +1317,6 @@ namespace CityConsequences
                     uint st = r.ReadUInt32(), wr = r.ReadUInt32();
                     if (i < Segments) { stamp[i] = st; wear[i] = wr; }
                 }
-            }
-        }
-    }
-
-    static class Collapse
-    {
-        const int ChainLimit = 24;
-        static readonly Queue<ushort> pending = new Queue<ushort>();
-        static readonly HashSet<ushort> seen = new HashSet<ushort>();
-        static int chained;
-        static bool road, train;
-
-        internal static void Prepare(Harmony h)
-        {
-            road = Reverse(h, typeof(RoadBaseAI), nameof(RoadCollapse));
-            train = Reverse(h, typeof(TrainTrackBaseAI), nameof(TrainCollapse));
-        }
-
-        static bool Reverse(Harmony h, Type type, string stub)
-        {
-            try
-            {
-                MethodInfo original = AccessTools.DeclaredMethod(type, "CollapseSegment");
-                if (original == null) return false;
-                Harmony.ReversePatch(original, new HarmonyMethod(typeof(Collapse), stub));
-                return true;
-            }
-            catch (Exception e)
-            {
-                Debug.LogException(e);
-                return false;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        static bool RoadCollapse(RoadBaseAI ai, ushort segmentID, ref NetSegment data, InstanceManager.Group group, bool demolish) => false;
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        static bool TrainCollapse(TrainTrackBaseAI ai, ushort segmentID, ref NetSegment data, InstanceManager.Group group, bool demolish) => false;
-
-        internal static void Clear()
-        {
-            pending.Clear();
-            seen.Clear();
-            chained = 0;
-        }
-
-        internal static bool IsTunnel(NetAI ai) => ai is RoadTunnelAI || ai is TrainTrackTunnelAI;
-        internal static bool IsStructure(NetAI ai) => ai is RoadBridgeAI || ai is TrainTrackBridgeAI || IsTunnel(ai);
-
-        internal static bool Fall(NetAI ai, ushort segment, ref NetSegment data, InstanceManager.Group group)
-        {
-            if (ai is RoadTunnelAI tunnel) return road && RoadCollapse(tunnel, segment, ref data, group, false);
-            if (ai is TrainTrackTunnelAI rail) return train && TrainCollapse(rail, segment, ref data, group, false);
-            return ai.CollapseSegment(segment, ref data, group, false);
-        }
-
-        internal static void Hit(ushort segment)
-        {
-            if (seen.Count == 0)
-            {
-                chained = 0;
-                Chirps.Send("Collapsed", 0);
-            }
-            seen.Add(segment);
-            Neighbours(segment);
-        }
-
-        static void Neighbours(ushort segment)
-        {
-            NetManager nm = Singleton<NetManager>.instance;
-            ushort a = nm.m_segments.m_buffer[segment].m_startNode, b = nm.m_segments.m_buffer[segment].m_endNode;
-            for (int i = 0; i < 8; i++)
-            {
-                Add(nm.m_nodes.m_buffer[a].GetSegment(i));
-                Add(nm.m_nodes.m_buffer[b].GetSegment(i));
-            }
-        }
-
-        static void Add(ushort s)
-        {
-            if (s == 0 || chained >= ChainLimit || !seen.Add(s)) return;
-            NetInfo info = Singleton<NetManager>.instance.m_segments.m_buffer[s].Info;
-            if (info == null || !IsStructure(info.m_netAI) || !Wear.Chains(s)) return;
-            chained++;
-            pending.Enqueue(s);
-        }
-
-        internal static void Step()
-        {
-            if (pending.Count == 0)
-            {
-                if (seen.Count > 0) seen.Clear();
-                return;
-            }
-            NetSegment[] segs = Singleton<NetManager>.instance.m_segments.m_buffer;
-            for (int n = pending.Count; n > 0; n--)
-            {
-                ushort s = pending.Dequeue();
-                if ((segs[s].m_flags & (NetSegment.Flags.Created | NetSegment.Flags.Deleted | NetSegment.Flags.Collapsed)) != NetSegment.Flags.Created || segs[s].Info == null) continue;
-                Neighbours(s);
-                Fall(segs[s].Info.m_netAI, s, ref segs[s], null);
             }
         }
     }
@@ -1499,10 +1389,11 @@ namespace CityConsequences
         static int homeBuildings, homeBuildingsAcc;
         static readonly int[] Utility = { 20, 25, 30, 35, 40 };
         const int Benefit = 60, WealthyIncome = 500, PoorIncome = 220, RichChance = 4, SuperChance = 1;
-        const float RentShare = 0.3f, RentFloor = 0.6f, RentSpread = 0.9f, LandScale = 60f, LandWeight = 0.75f, LeaseStep = 0.1f, JobStep = 0.15f, ExpectedJob = 1.15f, StudentShare = 0.5f;
+        const float RentShare = 0.3f, RentFloor = 0.6f, RentSpread = 0.9f, LandScale = 60f, LandWeight = 0.75f, LeaseStep = 0.1f, JobStep = 0.15f, ExpectedJob = 1.15f, StudentShare = 0.5f, TeenShare = 0.6f;
         const float LowDensity = 1.3f, MoveInShare = 0.4f, StayShare = 0.6f, Grandfather = 0.95f, CatchUp = 0.4f, BuyFactor = 1.15f;
         const uint OwnerShare = 70;
-        const int ForecloseAfter = 5;
+        const int ForecloseAfter = 5, LongUnemployed = 5, DropNotice = 35, DropSqueeze = 10;
+        internal const float RefRent = RentShare * 150f * (RentFloor + RentSpread * 0.5f);
         const float RentTax = 2f, WageTax = 1.5f, PublicMarket = 0.5f, RentCents = 3f, ShelterCents = 120f, WeekFrames = 4096f;
         internal const float MoneyPerPoint = RentCents / 100f;
         internal const int CityTally = 128, Buckets = 200, BucketSize = 10;
@@ -1547,7 +1438,7 @@ namespace CityConsequences
         static readonly uint[] poolUnit = new uint[PoolSize];
         static readonly int[] poolIncome = new int[PoolSize];
         static readonly float[] presence = new float[Cells], streets = new float[Cells], camp = new float[Cells];
-        static readonly byte[] doorstep = new byte[Buildings];
+        static readonly byte[] doorstep = new byte[Buildings], alarm = new byte[Buildings];
         static readonly HashSet<int> camps = new HashSet<int>();
         static readonly int[] nx, nz;
         static readonly float[] nw;
@@ -1629,8 +1520,10 @@ namespace CityConsequences
                 pending.Clear();
                 sites.Clear();
                 notices.Clear();
-                foreach (Array a in new Array[] { rent, market, flags, pressure, burden, pension, tier, policies, discount, movedIn, owner, districtPublicAcc, districtAllAcc, districtPublic, vacUnit, pubUnit, presence, streets, camp, doorstep, histogram, finalHistogram, living, landDrop, landPeak }) Array.Clear(a, 0, a.Length);
+                foreach (Array a in new Array[] { rent, market, flags, pressure, burden, pension, tier, policies, discount, movedIn, owner, districtPublicAcc, districtAllAcc, districtPublic, vacUnit, pubUnit, presence, streets, camp, doorstep, alarm, histogram, finalHistogram, living, landDrop, landPeak }) Array.Clear(a, 0, a.Length);
                 seeking.Clear();
+                seekList.Clear();
+                seekCursor = 0;
                 camps.Clear();
                 for (int d = 0; d <= Districts; d++) { tallying[d].Clear(); tallied[d].Clear(); }
                 StreetHomeless = CarHomeless = Sheltered = StayingHomeless = JailedHomeless = 0;
@@ -1657,6 +1550,7 @@ namespace CityConsequences
                 RentPass(frame);
                 VacancyPass();
                 if (Settings.Homeless.value || Settings.Rent.value) PublicPass();
+                if (Settings.Rent.value) SeekPass(frame);
                 if ((frame & 255) == 0) RebuildPresence();
                 if ((frame & 63) == 0 && notices.Count > 0) NoticePass(frame);
                 if (households.Count > 0) HouseholdPass(frame);
@@ -1749,8 +1643,10 @@ namespace CityConsequences
             if (info == null) return (int)wage;
             wage *= 1f + JobStep * Mathf.Clamp(B[work].m_level, 0, 4);
             ItemClass.Service s = info.m_class.m_service;
-            if (s == ItemClass.Service.Commercial || s == ItemClass.Service.Office || s == ItemClass.Service.Industrial)
-                wage *= Mathf.Max(0.5f, 1f - WageTax * (Singleton<EconomyManager>.instance.GetTaxRate(info.m_class) - 9) / 100f);
+            bool taxed = s == ItemClass.Service.Commercial || s == ItemClass.Service.Office || s == ItemClass.Service.Industrial;
+            if (taxed) wage *= Mathf.Max(0.5f, 1f - WageTax * (Singleton<EconomyManager>.instance.GetTaxRate(info.m_class) - 9) / 100f);
+            if (taxed || s == ItemClass.Service.PlayerIndustry || s == ItemClass.Service.Fishing) wage *= Payroll.Pay;
+            else if (Settings.Payroll.value) wage *= Mathf.Max(1f, Payroll.Index);
             return (int)wage;
         }
 
@@ -1761,8 +1657,8 @@ namespace CityConsequences
             int education = Mathf.Clamp((int)z[c].EducationLevel, 0, 3);
             switch (Citizen.GetAgeGroup(z[c].Age))
             {
-                case Citizen.AgeGroup.Child:
-                case Citizen.AgeGroup.Teen: return 0;
+                case Citizen.AgeGroup.Child: return 0;
+                case Citizen.AgeGroup.Teen: return z[c].m_workBuilding != 0 && (z[c].m_flags & Citizen.Flags.Student) == 0 ? (int)(Earned(ref z[c], z[c].m_workBuilding) * TeenShare) : 0;
                 case Citizen.AgeGroup.Senior:
                     int saved = (pension[c] & 0x7F) * 5;
                     return saved > 0 ? saved : Wage[education];
@@ -1802,6 +1698,63 @@ namespace CityConsequences
             return unit != 0 ? UnitIncome(unit) : CitizenIncome(c);
         }
 
+        internal static float AverageRent()
+        {
+            Tally t = tallied[CityTally].Households > 0 ? tallied[CityTally] : tallying[CityTally];
+            int renters = t.Households - t.Public;
+            return renters >= 50 ? (float)(t.Rent / renters) : 0f;
+        }
+
+        internal static int Strain(uint c, ref Citizen data)
+        {
+            if (!Settings.Rent.value) return 0;
+            ushort home = data.m_homeBuilding;
+            if (home == 0 || !IsHome(home) || IsShelter(home) || IsPublic(home)) return 0;
+            uint unit = HomeUnit(c, ref data);
+            if (unit == 0 || Exempt(UnitTier(unit))) return 0;
+            if (notices.ContainsKey(unit)) return 2;
+            if (IsLow(home) && Owner(unit)) return 0;
+            int income = UnitIncome(unit);
+            float squeeze = (income > 0 ? TenantRent(home, PolicyAt(B[home].m_position)) / income : 2f) + living[home] / 100f + Heating(home);
+            return squeeze > SpendStart ? 1 : 0;
+        }
+
+        [ThreadStatic] internal static int Hustle;
+
+        internal static int Hunt(uint c, ref Citizen data)
+        {
+            if (Strain(c, ref data) > 0) return 3;
+            return data.Unemployed >= LongUnemployed && Sim.Roll(3) == 0 ? 2 : 0;
+        }
+
+        internal static void Offer(TransferManager tm, TransferManager.TransferReason reason, TransferManager.TransferOffer offer)
+        {
+            int h = Hustle;
+            if (h != 0 && offer.Citizen != 0)
+            {
+                if ((h & 1) != 0 && (reason == TransferManager.TransferReason.Student2 || reason == TransferManager.TransferReason.Student3)) return;
+                if ((h & 2) != 0 && reason > TransferManager.TransferReason.Worker0 && reason <= TransferManager.TransferReason.Worker3)
+                {
+                    tm.AddOutgoingOffer(reason, offer);
+                    offer.Priority = Mathf.Max(0, offer.Priority - 2);
+                    tm.AddOutgoingOffer((TransferManager.TransferReason)((int)reason - 1 - Sim.Roll((uint)(reason - TransferManager.TransferReason.Worker0))), offer);
+                    return;
+                }
+            }
+            Religion.StudentOffer(tm, reason, offer);
+        }
+
+        internal static void DropOut(uint c, ref Citizen data)
+        {
+            if ((data.m_flags & Citizen.Flags.Student) == 0 || data.m_workBuilding == 0 || data.CurrentLocation != Citizen.Location.Home) return;
+            Citizen.AgeGroup age = Citizen.GetAgeGroup(data.Age);
+            if (age == Citizen.AgeGroup.Child || age == Citizen.AgeGroup.Senior) return;
+            int strain = Strain(c, ref data);
+            if (strain == 0 || Sim.Roll(100) >= (strain == 2 ? DropNotice : DropSqueeze)) return;
+            data.SetWorkplace(c, 0, 0u);
+            if (age != Citizen.AgeGroup.Teen) data.Unemployed = 1;
+        }
+
         internal static int HouseholdTier(uint c, ref Citizen data)
         {
             uint unit = HomeUnit(c, ref data);
@@ -1834,15 +1787,17 @@ namespace CityConsequences
 
         const float SpendStart = 0.35f, SpendFull = 0.75f, SpendFloor = 0.6f;
         const float PriceSlope = 0.25f, PriceLow = 0.9f, PriceHigh = 1.2f, GoodsShare = 0.3f, HeatStart = 8f, HeatRange = 20f, HeatMax = 0.06f;
-        const float ChoosyStart = 0.2f, ChoosyMax = 0.6f, LeaveMax = 0.3f, SeekCut = 0.85f;
+        const float ChoosyStart = 0.2f, ChoosyMax = 0.6f, SeekCut = 0.85f;
         const float StrRent = 0.8f, StrBlock = 2f, StrTax = 0.3f, StrCap = 0.5f;
         const float ColdStart = 10f, ColdRange = 30f, HotStart = 32f, HotPivot = 34f, HotBase = 0.08f, HotGrowth = 1.38f, CarCold = 0.35f, CarHot = 0.5f, SquatExposure = 0.5f;
-        const int ExposureDeath = 30, ExposureSick = 200, SeekMax = 1024;
+        const int ExposureDeath = 30, ExposureSick = 200, SeekMax = 1024, SeekPerFrame = 4;
         const float OwnerAnger = 20f, AngerStart = 0.1f, AngerRange = 0.3f, PeakDecay = 1f / 96f;
         static readonly sbyte[] living = new sbyte[Buildings];
         static readonly byte[] landDrop = new byte[Buildings];
         static readonly float[] landPeak = new float[Buildings];
         static readonly Dictionary<uint, Seek> seeking = new Dictionary<uint, Seek>();
+        static readonly List<uint> seekList = new List<uint>();
+        static int seekCursor;
         static readonly List<uint> expired = new List<uint>();
         [ThreadStatic] internal static bool Picky;
 
@@ -1904,10 +1859,72 @@ namespace CityConsequences
             return price <= seek.Limit;
         }
 
-        static void Shop(uint unit, float tenant, float squeeze, uint frame)
+        static float Price(ushort id) => IsLow(id) ? Rent(id) * BuyFactor : TenantRent(id, PolicyAt(B[id].m_position));
+
+        static bool Comfortable(int income, int t, ushort id, float price) => Covers(t, id) || income > 0 && price / income + living[id] / 100f + Heating(id) <= SpendStart;
+
+        static int Vacancy(int income, int t, Vector3 near, float cheaper, ushort skip)
         {
-            if (seeking.Count >= SeekMax || seeking.ContainsKey(unit)) return;
-            if (Sim.Roll(1000u) >= LeaveMax * 1000f * Mathf.Clamp01((squeeze - SpendStart) / (SpendFull - SpendStart))) return;
+            int comfy = -1, cheap = -1;
+            float near2 = float.MaxValue, low = float.MaxValue;
+            for (int i = 0; i < VacancySlots; i++)
+            {
+                if (vacUnit[i] == 0) continue;
+                ushort id = vacBuilding[i];
+                if (!FreeUnit(id, vacUnit[i]) || IsPublic(id)) { vacUnit[i] = 0; continue; }
+                if (id == skip) continue;
+                float price = Price(id);
+                if (Comfortable(income, t, id, price))
+                {
+                    float d = VectorUtils.LengthSqrXZ(B[id].m_position - near);
+                    if (d < near2) { near2 = d; comfy = i; }
+                }
+                else if (comfy < 0 && price < cheaper && price < low && income * MoveInShare >= price) { low = price; cheap = i; }
+            }
+            return comfy >= 0 ? comfy : cheap;
+        }
+
+        static void MoveInto(int slot, int n)
+        {
+            uint target = vacUnit[slot];
+            vacUnit[slot] = 0;
+            Citizen[] z = C;
+            for (int i = 0; i < n; i++) z[scratch[i]].SetHome(scratch[i], 0, target);
+        }
+
+        static bool Relocate(uint unit, ushort from, float cheaper)
+        {
+            int slot = Vacancy(UnitIncome(unit), UnitTier(unit), B[from].m_position, cheaper, from);
+            if (slot < 0) return false;
+            int n = Collect(unit);
+            if (n == 0) return false;
+            MoveInto(slot, n);
+            seeking.Remove(unit);
+            notices.Remove(unit);
+            return true;
+        }
+
+        internal static bool Settle(uint c, ref Citizen data, ushort target, bool family, int income, int t)
+        {
+            float price = Price(target);
+            if (Comfortable(income, t, target, price)) return true;
+            int slot = Vacancy(income, t, B[target].m_position, price, target);
+            if (slot < 0) return true;
+            uint home = family ? HomeUnit(c, ref data) : 0u;
+            int n = home != 0 ? Collect(home) : 0;
+            if (n == 0) { scratch[0] = c; n = 1; }
+            MoveInto(slot, n);
+            if (home != 0) { seeking.Remove(home); notices.Remove(home); }
+            return false;
+        }
+
+        static void Shop(uint unit, float tenant, uint frame)
+        {
+            if (Relocate(unit, U[unit].m_building, tenant)) return;
+            bool known = seeking.ContainsKey(unit);
+            if (!known && seeking.Count >= SeekMax) return;
+            seeking[unit] = new Seek { Limit = Mathf.FloorToInt(tenant * SeekCut), Until = frame + Sim.YearFrames };
+            if (!known) seekList.Add(unit);
             CitizenUnit[] u = U;
             Citizen[] z = C;
             uint head = 0;
@@ -1917,9 +1934,26 @@ namespace CityConsequences
                 uint c = u[unit].GetCitizen(i);
                 if (c != 0 && !z[c].Dead) { size++; head = c; }
             }
-            if (head == 0 || !(z[head].GetCitizenInfo(head)?.m_citizenAI is ResidentAI ai)) return;
-            seeking[unit] = new Seek { Limit = Mathf.FloorToInt(tenant * SeekCut), Until = frame + Sim.YearFrames / 4 };
-            ai.TryMoveFamily(head, ref z[head], size);
+            if (head != 0 && z[head].GetCitizenInfo(head)?.m_citizenAI is ResidentAI ai) ai.TryMoveFamily(head, ref z[head], size);
+        }
+
+        static void SeekPass(uint frame)
+        {
+            CitizenUnit[] u = U;
+            for (int k = 0; k < SeekPerFrame && seekList.Count > 0; k++)
+            {
+                if (seekCursor >= seekList.Count) seekCursor = 0;
+                uint unit = seekList[seekCursor];
+                bool drop = !seeking.TryGetValue(unit, out Seek seek) || (int)(frame - seek.Until) >= 0 || (u[unit].m_flags & CitizenUnit.Flags.Home) == 0 || u[unit].Empty() || !IsHome(u[unit].m_building) || IsPublic(u[unit].m_building);
+                if (drop) seeking.Remove(unit);
+                if (drop || Relocate(unit, u[unit].m_building, TenantRent(u[unit].m_building, PolicyAt(B[u[unit].m_building].m_position))))
+                {
+                    seekList[seekCursor] = seekList[seekList.Count - 1];
+                    seekList.RemoveAt(seekList.Count - 1);
+                    continue;
+                }
+                seekCursor++;
+            }
         }
 
         static void Expire(uint frame)
@@ -2073,7 +2107,14 @@ namespace CityConsequences
             lock (sync)
             {
                 pendingUnit = 0;
-                if (Choose((int)(Wage[education] * ExpectedJob * (family ? 2 : 1)), Normal, target)) return true;
+                int income = (int)(Wage[education] * ExpectedJob * Payroll.Pay * (family ? 2 : 1));
+                if (Choose(income, Normal, target))
+                {
+                    float price = Price(target);
+                    if (Comfortable(income, Normal, target, price) || Vacancy(income, Normal, B[target].m_position, price, target) < 0) return true;
+                    Picky = true;
+                    return false;
+                }
                 if (Picky) return false;
                 byte t = RollTier();
                 if (t == Normal || !Covers(t, target)) return false;
@@ -2238,18 +2279,20 @@ namespace CityConsequences
                     if (subsidy) cost += rent[id] * share * RentCents;
                     shares += income > 0 ? Mathf.Min(2f, tenant / income) : 2f;
                     counted++;
+                    Pool(home, income);
                     if (evict && income * StayShare < tenant)
                     {
                         noticed = true;
                         noticedUnits++;
                         if (notices.Count < Notices && !notices.ContainsKey(home)) notices[home] = frame + Sim.YearFrames / 4;
+                        Shop(home, tenant, frame);
                     }
                     else
                     {
                         notices.Remove(home);
-                        Pool(home, income);
                         float squeeze = (income > 0 ? tenant / income : 2f) + living[id] / 100f + Heating(id);
-                        if (evict && squeeze > SpendStart) Shop(home, tenant, squeeze, frame);
+                        if (evict && squeeze > SpendStart) Shop(home, tenant, frame);
+                        else seeking.Remove(home);
                     }
                 }
                 burden[id] = noticed ? NoticeBurden : (byte)Mathf.Clamp(counted > 0 ? Mathf.RoundToInt(shares / counted * 100f) : 0, 0, 200);
@@ -2636,6 +2679,14 @@ namespace CityConsequences
 
         static bool Rehouse(Household h, int income, int t)
         {
+            if (Settings.Rent.value)
+            {
+                int slot = Vacancy(income, t, h.Origin, float.MaxValue, 0);
+                if (slot < 0) return false;
+                for (int i = 0; i < h.Count; i++) scratch[i] = h.Members[i];
+                MoveInto(slot, h.Count);
+                return true;
+            }
             int best = -1;
             float bestDistance = float.MaxValue;
             for (int i = 0; i < VacancySlots; i++)
@@ -2643,7 +2694,6 @@ namespace CityConsequences
                 ushort id = vacBuilding[i];
                 if (vacUnit[i] == 0) continue;
                 if (!FreeUnit(id, vacUnit[i]) || IsPublic(id)) { vacUnit[i] = 0; continue; }
-                if (Settings.Rent.value && !Affordable(income, t, id)) continue;
                 float d = VectorUtils.LengthSqrXZ(B[id].m_position - h.Origin);
                 if (d < bestDistance) { bestDistance = d; best = i; }
             }
@@ -3056,6 +3106,31 @@ namespace CityConsequences
         internal static float StreetsIn(float[] grid, Vector3 p) => Walk.Sum(grid, p, nx, nz, nw);
 
         internal static int DoorstepNow(ushort id) => doorstep[id];
+        internal static int AlarmNow(ushort id) => alarm[id];
+
+        internal static void RentAlarm(ushort id, ref Building data)
+        {
+            int level = 0, old = alarm[id];
+            if (notices.Count > 0 && (data.m_flags & (Building.Flags.Abandoned | Building.Flags.Collapsed)) == 0 && !IsPublic(id))
+            {
+                int homes = 0, noticed = 0;
+                CitizenUnit[] u = U;
+                uint unit = data.m_citizenUnits;
+                for (int guard = 0; unit != 0 && guard < 1024; guard++)
+                {
+                    if ((u[unit].m_flags & CitizenUnit.Flags.Home) != 0 && !u[unit].Empty() && !Tracked(u[unit].m_citizen0))
+                    {
+                        homes++;
+                        if (notices.ContainsKey(unit)) noticed++;
+                    }
+                    unit = u[unit].m_nextUnit;
+                }
+                if (noticed * 2 > homes) level = noticed * 4 >= homes * 3 ? 2 : 1;
+            }
+            if (level == old) return;
+            alarm[id] = (byte)level;
+            Badges.Set(Badges.Rent, id, ref data, old > 0, level > 0, old > 1, level > 1);
+        }
 
         internal static void Doorstep(ushort id, ref Building data)
         {
@@ -3149,7 +3224,7 @@ namespace CityConsequences
             {
                 flags[id] = 0;
                 rent[id] = market[id] = 0;
-                pressure[id] = burden[id] = 0;
+                pressure[id] = burden[id] = alarm[id] = 0;
                 extra.Remove(id);
                 pending.Remove(id);
                 if ((f & Building.Flags.Collapsed) != 0 && b[id].m_levelUpProgress != byte.MaxValue && (f & Building.Flags.Untouchable) == 0 && ToolsModifierControl.toolController != null && ToolsModifierControl.toolController.CurrentTool is BulldozeTool)
@@ -3903,7 +3978,7 @@ namespace CityConsequences
             Sync(panel.component, zoned, true);
         }
 
-        const string BadgeName = Prefix + "Badge";
+        const string BadgeName = Prefix + "Badge", RentBadgeName = Prefix + "RentBadge";
         static readonly System.Reflection.FieldInfo icons = typeof(BuildingWorldInfoPanel).GetField("m_IconsContainer", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
             banner = typeof(BuildingWorldInfoPanel).GetField("m_AllGood", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance),
             iconWidth = typeof(BuildingWorldInfoPanel).GetField("m_IconWidth", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
@@ -3911,36 +3986,45 @@ namespace CityConsequences
         internal static void Problems(BuildingWorldInfoPanel panel)
         {
             if (icons == null || banner == null || !(icons.GetValue(panel) is UIPanel strip)) return;
-            UISprite badge = strip.Find<UISprite>(BadgeName);
             ushort id = Target(panel);
-            int level = Sim.Active && Settings.Homeless.value && id != 0 ? Housing.DoorstepNow(id) : 0;
-            if (level < Housing.DoorMinor || Icons.Atlas == null || (Singleton<BuildingManager>.instance.m_buildings.m_buffer[id].m_flags & (Building.Flags.Abandoned | Building.Flags.Collapsed | Building.Flags.BurnedDown)) != 0 || Singleton<BuildingManager>.instance.m_buildings.m_buffer[id].m_problems.IsFatal)
+            Building[] b = Singleton<BuildingManager>.instance.m_buildings.m_buffer;
+            bool off = id == 0 || !Sim.Active || Icons.Atlas == null || (b[id].m_flags & (Building.Flags.Abandoned | Building.Flags.Collapsed | Building.Flags.BurnedDown)) != 0 || b[id].m_problems.IsFatal;
+            int door = !off && Settings.Homeless.value ? Housing.DoorstepNow(id) : 0, rent = !off && Settings.Rent.value ? Housing.AlarmNow(id) : 0;
+            UISprite a = Badge(strip, BadgeName, door >= Housing.DoorMinor, door >= Housing.DoorMajor ? Icons.Major : Icons.Minor, door >= Housing.DoorMajor ? "doorstep_major" : "doorstep_minor");
+            UISprite c = Badge(strip, RentBadgeName, rent > 0, rent > 1 ? Icons.RentMajor : Icons.RentMinor, rent > 1 ? "rent_alarm_major" : "rent_alarm_minor");
+            if (a == null && c == null) return;
+            int ours = (a != null ? 1 : 0) + (c != null ? 1 : 0), others = 0;
+            foreach (UIComponent x in strip.components) if (x != a && x != c && x.isVisible) others++;
+            float step = iconWidth != null ? (float)iconWidth.GetValue(panel) : (a ?? c).width;
+            if (banner.GetValue(panel) is UILabel label)
+            {
+                label.width = strip.width - strip.padding.horizontal - step * (others + ours);
+                label.text = others + ours > 1 ? ColossalFramework.Globalization.Locale.Get("NOTIFICATION_MULTIPLE") : Lang.T(a != null ? "notif_doorstep_title" : "notif_rent_title");
+            }
+            if (others == 0) strip.color = door >= Housing.DoorMajor || rent > 1 ? panel.m_ProblemoBizarroMajorColor : panel.m_ProblemoBizarroNormalColor;
+        }
+
+        static UISprite Badge(UIPanel strip, string name, bool show, string sprite, string tip)
+        {
+            UISprite badge = strip.Find<UISprite>(name);
+            if (!show)
             {
                 if (badge != null && badge.isVisible) badge.isVisible = false;
-                return;
+                return null;
             }
             if (badge == null)
             {
                 badge = strip.AddUIComponent<UISprite>();
-                badge.name = BadgeName;
+                badge.name = name;
                 badge.atlas = Icons.Atlas;
                 UIComponent sample = strip.components.Count > 1 ? strip.components[0] : null;
                 badge.size = sample != null && sample.width > 0f ? sample.size : new Vector2(36f, 36f);
             }
-            bool severe = level >= Housing.DoorMajor;
-            badge.spriteName = severe ? Icons.Major : Icons.Minor;
-            badge.tooltip = Lang.T(severe ? "doorstep_major" : "doorstep_minor");
+            badge.spriteName = sprite;
+            badge.tooltip = Lang.T(tip);
             badge.isVisible = true;
             badge.opacity = 0.75f + Mathf.Cos(Time.time * Mathf.PI * 1.5f) * 0.25f;
-            int others = 0;
-            foreach (UIComponent c in strip.components) if (c != badge && c.isVisible) others++;
-            float step = iconWidth != null ? (float)iconWidth.GetValue(panel) : badge.width;
-            if (banner.GetValue(panel) is UILabel label)
-            {
-                label.width = strip.width - strip.padding.horizontal - step * (others + 1);
-                label.text = others == 0 ? Lang.T("notif_doorstep_title") : ColossalFramework.Globalization.Locale.Get("NOTIFICATION_MULTIPLE");
-            }
-            if (others == 0) strip.color = severe ? panel.m_ProblemoBizarroMajorColor : panel.m_ProblemoBizarroNormalColor;
+            return badge;
         }
 
         internal static void Service(CityServiceWorldInfoPanel panel)
@@ -6190,6 +6274,8 @@ namespace CityConsequences
 
     static class Badges
     {
+        internal const int Door = 0, Rent = 1;
+
         struct Mark
         {
             internal Vector3 Pos;
@@ -6199,6 +6285,7 @@ namespace CityConsequences
         struct Pop
         {
             internal ushort Id;
+            internal int Kind;
             internal Vector3 Pos;
             internal bool Severe;
             internal float Start;
@@ -6207,13 +6294,13 @@ namespace CityConsequences
         const float PopTime = 0.5f;
         static Material material;
         static bool tried;
-        static Vector4 minor, major;
+        static readonly Vector4[] sprites = new Vector4[4];
         static readonly object sync = new object();
-        static readonly Dictionary<ushort, Mark> marks = new Dictionary<ushort, Mark>();
-        static readonly bool[] on = new bool[Housing.Buildings];
+        static readonly Dictionary<int, Mark> marks = new Dictionary<int, Mark>();
+        static readonly byte[] on = new byte[Housing.Buildings];
         static readonly List<Pop> pops = new List<Pop>();
         static readonly Dictionary<ushort, Vector3> exact = new Dictionary<ushort, Vector3>();
-        static readonly List<KeyValuePair<ushort, Mark>> shown = new List<KeyValuePair<ushort, Mark>>();
+        static readonly List<KeyValuePair<int, Mark>> shown = new List<KeyValuePair<int, Mark>>();
         static readonly FastList<NotificationManager.BufferedItem> items = new FastList<NotificationManager.BufferedItem>();
         static readonly Vector4[] regions = new Vector4[16], positions = new Vector4[16], parameters = new Vector4[16];
         static readonly FieldInfo alpha = typeof(NotificationManager).GetField("m_notificationAlpha", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -6227,14 +6314,14 @@ namespace CityConsequences
             tried = true;
             try
             {
-                Texture2D a = Icons.Load(Icons.Minor), b = Icons.Load(Icons.Major);
-                if (a == null || b == null) return false;
-                var sheet = new Texture2D(256, 128, TextureFormat.ARGB32, true);
-                Rect[] r = sheet.PackTextures(new[] { a, b }, 4, 256);
+                var textures = new Texture2D[4];
+                string[] names = { Icons.Minor, Icons.Major, Icons.RentMinor, Icons.RentMajor };
+                for (int i = 0; i < 4; i++) if ((textures[i] = Icons.Load(names[i])) == null) return false;
+                var sheet = new Texture2D(256, 256, TextureFormat.ARGB32, true);
+                Rect[] r = sheet.PackTextures(textures, 4, 512);
                 sheet.filterMode = FilterMode.Trilinear;
                 sheet.wrapMode = TextureWrapMode.Clamp;
-                minor = new Vector4(r[0].xMin, r[0].yMin, r[0].xMax, r[0].yMax);
-                major = new Vector4(r[1].xMin, r[1].yMin, r[1].xMax, r[1].yMax);
+                for (int i = 0; i < 4; i++) sprites[i] = new Vector4(r[i].xMin, r[i].yMin, r[i].xMax, r[i].yMax);
                 material = new Material(nm.m_notificationMaterial) { mainTexture = sheet };
             }
             catch (Exception e) { Debug.LogException(e); }
@@ -6265,43 +6352,56 @@ namespace CityConsequences
 
         static bool Hidden(ref Building b) => (b.m_flags & (Building.Flags.Abandoned | Building.Flags.Collapsed | Building.Flags.BurnedDown | Building.Flags.Deleted)) != 0 || b.m_problems.IsFatal;
 
-        internal static void Update(ushort id, ref Building b, int old, int level)
+        static int Enabled => (Settings.Homeless.value ? 1 << Door : 0) | (Settings.Rent.value ? 1 << Rent : 0);
+
+        internal static void Update(ushort id, ref Building b, int old, int level) => Set(Door, id, ref b, old >= Housing.DoorMinor, level >= Housing.DoorMinor, old >= Housing.DoorMajor, level >= Housing.DoorMajor);
+
+        internal static void Set(int kind, ushort id, ref Building b, bool was, bool now, bool wasSevere, bool severe)
         {
-            bool was = old >= Housing.DoorMinor, now = level >= Housing.DoorMinor;
             if (!was && !now) return;
+            int key = id | kind << 16;
             lock (sync)
             {
-                on[id] = now;
-                if (now) marks[id] = new Mark { Pos = Top(ref b), Severe = level >= Housing.DoorMajor };
+                if (now)
+                {
+                    on[id] |= (byte)(1 << kind);
+                    marks[key] = new Mark { Pos = Top(ref b), Severe = severe };
+                }
                 else
                 {
-                    marks.Remove(id);
-                    if (!Hidden(ref b)) pops.Add(new Pop { Id = id, Pos = Top(ref b), Severe = old >= Housing.DoorMajor, Start = -1f });
+                    on[id] &= (byte)~(1 << kind);
+                    marks.Remove(key);
+                    if (!Hidden(ref b)) pops.Add(new Pop { Id = id, Kind = kind, Pos = Top(ref b), Severe = wasSevere, Start = -1f });
                 }
             }
         }
 
         internal static void Forget(ushort id)
         {
-            if (!on[id]) return;
-            on[id] = false;
-            lock (sync) marks.Remove(id);
+            if (on[id] == 0) return;
+            on[id] = 0;
+            lock (sync)
+            {
+                marks.Remove(id | Door << 16);
+                marks.Remove(id | Rent << 16);
+            }
         }
 
-        static bool Turn(ref Building b, NotificationManager nm)
+        static int Phase(ref Building b, NotificationManager nm, int mask, out int count)
         {
             if (Time.frameCount != frame)
             {
                 frame = Time.frameCount;
                 second = (int)Time.realtimeSinceStartup;
             }
-            int count = Notification.RemoveProblems(b.m_problems, nm.NotificationsHidden).Count;
-            return second % (count + 1) == count;
+            count = Notification.RemoveProblems(b.m_problems, nm.NotificationsHidden).Count;
+            return second % (count + (mask & 1) + (mask >> 1 & 1));
         }
 
         internal static void Exact(ref Building b, ushort id, BuildingInfo info, ref RenderManager.Instance data, int before)
         {
-            if (!on[id] || !Sim.Active || !Settings.Homeless.value) return;
+            int mask = on[id] & Enabled;
+            if (mask == 0 || !Sim.Active) return;
             Vector3 position;
             if (b.m_subBuilding != 0 && info.m_placementMode == BuildingInfo.PlacementMode.Roadside)
             {
@@ -6315,23 +6415,24 @@ namespace CityConsequences
             }
             exact[id] = position;
             NotificationManager nm = Singleton<NotificationManager>.instance;
-            if (material != null && !Hidden(ref b) && Turn(ref b, nm) && nm.m_bufferedItems.m_size > before) nm.m_bufferedItems.m_size = before;
+            if (material != null && !Hidden(ref b) && Phase(ref b, nm, mask, out int count) >= count && nm.m_bufferedItems.m_size > before) nm.m_bufferedItems.m_size = before;
         }
 
-        static void Add(RenderManager.CameraInfo cameraInfo, Vector3 position, Vector4 p, float scale, bool severe)
+        static void Add(RenderManager.CameraInfo cameraInfo, Vector3 position, Vector4 p, float scale, int sprite)
         {
             items.Add(new NotificationManager.BufferedItem
             {
                 m_position = new Vector4(position.x, position.y, position.z, scale),
                 m_params = p,
                 m_distanceSqr = Vector3.SqrMagnitude(position - cameraInfo.m_position),
-                m_regionIndex = severe ? 1 : 0
+                m_regionIndex = sprite
             });
         }
 
         internal static void Draw(RenderManager.CameraInfo cameraInfo)
         {
-            if (!Sim.Active || !Settings.Homeless.value || marks.Count == 0 && pops.Count == 0) return;
+            int enabled = Enabled;
+            if (!Sim.Active || enabled == 0 || marks.Count == 0 && pops.Count == 0) return;
             NotificationManager nm = Singleton<NotificationManager>.instance;
             if (!Ready(nm)) return;
             ToolController tools = Singleton<ToolManager>.instance.m_properties;
@@ -6347,16 +6448,19 @@ namespace CityConsequences
                     if (pop.Start < 0f) { pop.Start = now; pops[i] = pop; }
                     float t = now - pop.Start;
                     if (t >= PopTime) { pops.RemoveAt(i); continue; }
+                    if ((enabled & 1 << pop.Kind) == 0) continue;
                     Vector3 at = exact.TryGetValue(pop.Id, out Vector3 e) ? e : pop.Pos;
                     at.y += t * 5f;
-                    Add(cameraInfo, at, new Vector4(0f, 1f - t * 2f, 0f, 0f), 1f + t * 2f, pop.Severe);
+                    Add(cameraInfo, at, new Vector4(0f, 1f - t * 2f, 0f, 0f), 1f + t * 2f, pop.Kind * 2 + (pop.Severe ? 1 : 0));
                 }
             }
             Building[] buildings = Singleton<BuildingManager>.instance.m_buildings.m_buffer;
             foreach (var kv in shown)
             {
-                ushort id = kv.Key;
-                if (Hidden(ref buildings[id]) || !Turn(ref buildings[id], nm)) continue;
+                ushort id = (ushort)(kv.Key & 0xFFFF);
+                int kind = kv.Key >> 16, mask = on[id] & enabled;
+                if ((mask & 1 << kind) == 0 || Hidden(ref buildings[id])) continue;
+                if (Phase(ref buildings[id], nm, mask, out int count) != count + (kind == Rent ? mask & 1 : 0)) continue;
                 Vector3 position = exact.TryGetValue(id, out Vector3 x) ? x : kv.Value.Pos;
                 if (!cameraInfo.Intersect(position, 10f)) continue;
                 bool severe = kv.Value.Severe;
@@ -6367,7 +6471,7 @@ namespace CityConsequences
                     p.y = Mathf.Max(0f, 1f - d * d);
                     if (p.y <= 0f) continue;
                 }
-                Add(cameraInfo, position, p, 1f, severe);
+                Add(cameraInfo, position, p, 1f, kind * 2 + (severe ? 1 : 0));
             }
             if (exact.Count > 2 * shown.Count + 64) exact.Clear();
             if (items.m_size == 0) return;
@@ -6384,7 +6488,7 @@ namespace CityConsequences
                         NotificationManager.BufferedItem item = items.m_buffer[done++];
                         Vector4 p = item.m_params;
                         p.y *= fade;
-                        regions[i] = item.m_regionIndex == 1 ? major : minor;
+                        regions[i] = sprites[item.m_regionIndex & 3];
                         positions[i] = item.m_position;
                         parameters[i] = p;
                     }
@@ -6427,7 +6531,7 @@ namespace CityConsequences
             }
         }
 
-        internal const string AntiHomeless = "IconPolicyAntiHomeless", Homeless = "IconPolicyBindle", Minor = "BuildingNotificationHomelessFirst", Major = "BuildingNotificationHomeless", Rent = "InfoIconRent", Religion = "InfoIconReligion", HomelessInfo = "InfoIconHomeless", PublicHousing = "IconPolicyPublicHousing", NoShortStay = "IconPolicyNoShortStay", WorshipTax = "IconPolicyWorshipTax", Outreach = "IconPolicyOutreach", InterfaithPolicy = "IconPolicyInterfaith";
+        internal const string AntiHomeless = "IconPolicyAntiHomeless", Homeless = "IconPolicyBindle", Minor = "BuildingNotificationHomelessFirst", Major = "BuildingNotificationHomeless", RentMinor = "BuildingNotificationRentFirst", RentMajor = "BuildingNotificationRent", Rent = "InfoIconRent", Religion = "InfoIconReligion", HomelessInfo = "InfoIconHomeless", PublicHousing = "IconPolicyPublicHousing", NoShortStay = "IconPolicyNoShortStay", WorshipTax = "IconPolicyWorshipTax", Outreach = "IconPolicyOutreach", InterfaithPolicy = "IconPolicyInterfaith";
         static readonly string[] States = { "", "Disabled", "Focused", "Hovered", "Pressed" };
         static UITextureAtlas atlas;
         static bool tried;
@@ -6453,6 +6557,8 @@ namespace CityConsequences
                 foreach (string state in States) all.Add(baseName + state);
             all.Add(Minor);
             all.Add(Major);
+            all.Add(RentMinor);
+            all.Add(RentMajor);
             foreach (string n in all)
             {
                 Texture2D t = Load(n);
@@ -6560,12 +6666,11 @@ namespace CityConsequences
             Patch(h, typeof(PlayerNetAI), "GetMaintenanceCost", new[] { typeof(Vector3), typeof(Vector3) }, null, nameof(WornUpkeep));
             Patch(h, typeof(Patches), typeof(PlayerNetAI), "SimulationStep", new[] { typeof(ushort), typeof(NetSegment).MakeByRefType() }, nameof(SegmentStep), null, Priority.First, nameof(SegmentStepDone));
             Patch(h, typeof(PlayerBuildingAI), "GetMaintenanceCost", Type.EmptyTypes, null, nameof(Wages));
-            Collapse.Prepare(h);
-            foreach (Type t in new[] { typeof(RoadBaseAI), typeof(RoadTunnelAI), typeof(TrainTrackBaseAI), typeof(TrainTrackTunnelAI) })
-                Patch(h, t, "CollapseSegment", null, nameof(StructureHit), null);
             Patch(h, typeof(PoliciesPanel), "RefreshPanel", null, nameof(PoliciesBefore), nameof(PoliciesAfter));
             Patch(h, typeof(ZonedBuildingWorldInfoPanel), "OnSetTarget", null, null, nameof(ZonedPanel));
             Patch(h, typeof(CityServiceWorldInfoPanel), "OnSetTarget", null, null, nameof(ServicePanel));
+            MethodInfo workplace = AccessTools.DeclaredMethod(typeof(ResidentAI), "UpdateWorkplace");
+            if (workplace != null) h.Patch(workplace, transpiler: new HarmonyMethod(typeof(Patches), nameof(StudentOffers)));
             Religion.Standalone = StandaloneFaith();
             if (Religion.Standalone) { Debug.LogWarning("[City Consequences] Places of Worship is enabled separately, so the built-in religion features stay off"); return; }
             Patch(h, typeof(BuildingInfo), "InitializePrefab", Type.EmptyTypes, nameof(WorshipPrefab), null);
@@ -6577,8 +6682,6 @@ namespace CityConsequences
             Patch(h, typeof(ResidentAI), "UpdateHealth", null, null, nameof(Healed));
             Patch(h, typeof(CemeteryAI), "StartTransfer", null, nameof(FuneralDispatch), null);
             Patch(h, typeof(HearseAI), "LoadDeadCitizens", null, nameof(HoldBodies), nameof(ReleaseBodies));
-            MethodInfo workplace = AccessTools.DeclaredMethod(typeof(ResidentAI), "UpdateWorkplace");
-            if (workplace != null) h.Patch(workplace, transpiler: new HarmonyMethod(typeof(Patches), nameof(StudentOffers)));
         }
 
         static bool StandaloneFaith()
@@ -6655,7 +6758,7 @@ namespace CityConsequences
         static IEnumerable<CodeInstruction> StudentOffers(IEnumerable<CodeInstruction> instructions)
         {
             MethodInfo target = AccessTools.Method(typeof(TransferManager), "AddOutgoingOffer");
-            MethodInfo replacement = AccessTools.Method(typeof(Religion), nameof(Religion.StudentOffer));
+            MethodInfo replacement = AccessTools.Method(typeof(Housing), nameof(Housing.Offer));
             int swapped = 0;
             foreach (CodeInstruction i in instructions)
             {
@@ -6667,7 +6770,7 @@ namespace CityConsequences
                 }
                 yield return i;
             }
-            if (swapped == 0) Debug.LogWarning("[City Consequences] Religious education norms could not hook school offers");
+            if (swapped == 0) Debug.LogWarning("[City Consequences] Could not hook job and school offers");
         }
 
         internal static void Remove()
@@ -6711,14 +6814,29 @@ namespace CityConsequences
         static void JobSearch(uint citizenID, ref Citizen data, out int __state)
         {
             __state = -1;
-            if (!Sim.Active || data.m_workBuilding != 0 || data.Unemployed == 0 || !Records.Blocked(citizenID)) return;
-            __state = data.Unemployed;
-            data.Unemployed = 0;
-            if (Sim.Roll(300) == 0) Chirps.Send("Record", 0);
+            Housing.Hustle = 0;
+            if (!Sim.Active || data.m_workBuilding != 0 || data.m_homeBuilding == 0) return;
+            if (Records.Blocked(citizenID))
+            {
+                if (data.Unemployed == 0) return;
+                __state = data.Unemployed;
+                data.Unemployed = 0;
+                if (Sim.Roll(300) == 0) Chirps.Send("Record", 0);
+                return;
+            }
+            Citizen.AgeGroup age = Citizen.GetAgeGroup(data.Age);
+            if (age == Citizen.AgeGroup.Child || age == Citizen.AgeGroup.Senior) return;
+            int h = Housing.Hustle = Housing.Hunt(citizenID, ref data);
+            if ((h & 1) != 0 && data.Unemployed == 0 && age == Citizen.AgeGroup.Teen)
+            {
+                __state = 0;
+                data.Unemployed = 1;
+            }
         }
 
         static void JobSearched(ref Citizen data, int __state)
         {
+            Housing.Hustle = 0;
             if (__state >= 0) data.Unemployed = __state;
         }
 
@@ -6768,6 +6886,7 @@ namespace CityConsequences
             Housing.Pension(citizenID, ref data);
             Housing.Tier(citizenID, ref data);
             Records.Tick(citizenID, ref data);
+            Housing.DropOut(citizenID, ref data);
             if (!Housing.HomelessTick(citizenID, ref data) && data.m_homeBuilding != 0) Housing.Neighbourhood(citizenID, ref data);
         }
 
@@ -6798,7 +6917,8 @@ namespace CityConsequences
             if (Housing.Tracked(citizenID) || (target != 0 && Housing.MarkedPublic(target))) return false;
             if (!Settings.Rent.value || target == 0 || !Housing.IsHome(target)) return true;
             if (!Housing.WithinBudget(citizenID, ref data, target)) return false;
-            return family ? Housing.Choose(Housing.HouseholdIncome(citizenID, ref data), Housing.HouseholdTier(citizenID, ref data), target) : Housing.Choose(Housing.CitizenIncome(citizenID), Housing.Tier(citizenID), target);
+            int income = family ? Housing.HouseholdIncome(citizenID, ref data) : Housing.CitizenIncome(citizenID), t = family ? Housing.HouseholdTier(citizenID, ref data) : Housing.Tier(citizenID);
+            return Housing.Choose(income, t, target) && Housing.Settle(citizenID, ref data, target, family, income, t);
         }
 
         static bool Immigrate(TransferManager.TransferReason material, TransferManager.TransferOffer offer, ref bool __result)
@@ -6965,7 +7085,9 @@ namespace CityConsequences
             Housing.Current = 0;
             if (!Sim.Active) return;
             if (Settings.Homeless.value) Housing.Doorstep(buildingID, ref buildingData);
-            if (Settings.Rent.value) Housing.LandWatch(buildingID, ref buildingData);
+            if (!Settings.Rent.value) return;
+            Housing.LandWatch(buildingID, ref buildingData);
+            Housing.RentAlarm(buildingID, ref buildingData);
         }
 
         static void Problems(ushort buildingID, ref Building buildingData)
@@ -6992,15 +7114,6 @@ namespace CityConsequences
         static void UpkeepPreview(PlayerNetAI __instance, ref int __result)
         {
             if (__instance is RoadBaseAI) __result = Roads.Apply(__instance, __result);
-        }
-
-        static bool StructureHit(NetAI __instance, ushort segmentID, ref NetSegment data, InstanceManager.Group group, bool demolish, ref bool __result)
-        {
-            if (demolish || group == null || !Sim.Active || !Settings.Collapse.value || group.m_ownerInstance.Disaster == 0 || !Collapse.IsStructure(__instance)) return true;
-            Collapse.Hit(segmentID);
-            if (!Collapse.IsTunnel(__instance)) return true;
-            __result = Collapse.Fall(__instance, segmentID, ref data, group);
-            return false;
         }
 
         static void PoliciesBefore(PoliciesPanel __instance) => Guard(() => Ui.PoliciesBefore(__instance));
